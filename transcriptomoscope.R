@@ -101,7 +101,7 @@ for(path in paths) {
   z = t((t(z) - mins) / ranges)
   cpi <- chull(x, y)
   cp <- list(x = x[cpi], y = y[cpi])
-  
+
   # Plot each column in Grayscale if there are more than 3 columns
   if (ncol(z) > 3) {
     par(mfrow = c(nr, nc), mar = c(0, 0, 0, 0), bg = ifelse(black.bg, "black", "white"))
@@ -114,6 +114,8 @@ for(path in paths) {
       plot(tiles, fillcol = grey(v), showpoints = FALSE, border = ifelse(draw.border, TRUE, NA), clipp = cp, add = TRUE)
     }
   } else {
+    while (ncol(z) < 3)
+      z <- cbind(z, 0)
     plot(x, y, type = 'n', bty = 'none', axes = FALSE, xlim = c(0, 34), ylim = c(0, 36))
     plot(tiles, fillcol = rgb(z), showpoints = FALSE, border = ifelse(draw.border, TRUE, NA), clipp = cp, add = TRUE)
   }
