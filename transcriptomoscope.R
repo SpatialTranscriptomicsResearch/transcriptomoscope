@@ -17,8 +17,8 @@ option_list = list(
   make_option(c("-o", "--out"), type="character", default="vtess.pdf",
               help="specify output path [default = vtess.pdf]",
               action="store"),
-  make_option(c("-inv", "--invertgrayscale"), type="logical", default=FALSE,
-              help="invert grayscale in output plots (if number of columns is more than 3)",
+  make_option(c("-i", "--invert"), type="logical", default=FALSE,
+              help="invert palette in output plots (if number of columns is more than 3)",
               action="store_true"),
   make_option(c("-sd", "--selectdims"), type="character", default=NULL,
               help="subselect three columns to compare",
@@ -39,7 +39,7 @@ transpose = opt$options$transpose
 pal.choice = opt$options$pal
 ncols = opt$options$columns
 outpath = opt$options$out
-bwinv = opt$options$invertgrayscale
+bwinv = opt$options$invert
 sdims = opt$options$selectdims
 draw.border = opt$options$border
 
