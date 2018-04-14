@@ -10,6 +10,8 @@ option_list = list(
   make_option(c("-c", "--columns"), type="numeric", default=NULL,
               help="number of columns in grid plots [default = ceiling(sqrt(n)), where n is the number of samples]",
               metavar="N"),
+  make_option(c("-s", "--split"), type="logical", default=FALSE,
+              help="put each plot on an individual page", action="store_true"),
   make_option(c("-C", "--convhull"), type="numeric", default=0.25,
               help="distance to additional points to enlarge convex hull [default = 0.25]",
               metavar="N"),
@@ -45,6 +47,7 @@ opt = parse_args(opt_parser, positional_arguments = c(1, Inf));
 one.pic.mode = opt$options$one
 plot.order.col = opt$options$order
 ncols = opt$options$columns
+split.plots = opt$options$split
 black.bg = opt$options$blackbg
 transpose = opt$options$transpose
 pal.choice = opt$options$pal
@@ -114,6 +117,11 @@ if (!is.null(ncols)) {
 } else {
   nc = ceiling(sqrt(n))
   nr = ceiling(n/nc)
+}
+
+if (split.plots) {
+  nc = 1
+  nr = 1
 }
 
 mins = apply(sapply(d, function(x) apply(x, 2, min)), 1, min)
