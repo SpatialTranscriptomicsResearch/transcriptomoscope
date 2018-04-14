@@ -11,6 +11,9 @@ option_list = list(
   make_option(c("-t", "--transpose"), type="logical", default=FALSE,
               help="ensure that genes are rows and columns are spots",
               action="store_true"),
+  make_option(c("", "--pal"), type="character", default="offwhite.to.black",
+              help="palette to use. available: green.to.blue, spectral, offwhite.to.black",
+              action="store"),
   make_option(c("-o", "--outdir"), type="character", default=NULL,
               help="specify output directory",
               action="store"),
@@ -33,11 +36,26 @@ opt = parse_args(opt_parser, positional_arguments = c(1, Inf));
 ncols = opt$options$columns
 black.bg = opt$options$blackbg
 transpose = opt$options$transpose
+pal.choice = opt$options$pal
 ncols = opt$options$columns
 outdir = opt$options$outdir
 bwinv = opt$options$invertgrayscale
 sdims = opt$options$selectdims
 draw.border = opt$options$border
+
+palettes <- list(
+  green.to.blue = colorRamp(brewer.pal(9,"GnBu")),
+  the.cols = colorRamp(c(rgb(255,255,217, maxColorValue=255),
+    rgb(65,182,196, maxColorValue=255),
+    rgb(8, 29, 88, maxColorValue=255)),
+    space="Lab"),
+  spectral = colorRamp(brewer.pal(9,"Spectral")),
+  offwhite.to.black = colorRamp(c(rgb(220,220,220, maxColorValue=255),
+      rgb(0, 0, 0, maxColorValue=255)),
+    space="Lab")
+)
+
+palette <- palettes[[pal.choice]]
 
 if (!is.null(outdir)) {
   outdir <- paste0(outdir, "vtess.pdf")
@@ -107,11 +125,13 @@ for(path in paths) {
     par(mfrow = c(nr, nc), mar = c(0, 0, 0, 0), bg = ifelse(black.bg, "black", "white"))
     for (i in 1:ncol(z)) {
       v <- z[, i]
+      v <- (v - min(v)) / (max(v) - min(v))
       plot(x, y, type = 'n', bty = 'none', axes = FALSE, xlim = c(0, 34), ylim = c(0, 36))
       if (bwinv) {
         v <- 1 - v
       }
-      plot(tiles, fillcol = grey(v), showpoints = FALSE, border = ifelse(draw.border, TRUE, NA), clipp = cp, add = TRUE)
+      cols <- rgb(palette(v), maxColorValue=255)
+      plot(tiles, fillcol = cols, showpoints = FALSE, border = ifelse(draw.border, TRUE, NA), clipp = cp, add = TRUE)
     }
   } else {
     while (ncol(z) < 3)
