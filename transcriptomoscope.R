@@ -6,6 +6,9 @@ option_list = list(
   make_option(c("-c", "--columns"), type="numeric", default=NULL,
               help="number of columns in grid plots [default = ceiling(sqrt(n)), where n is the number of samples]",
               metavar="N"),
+  make_option(c("", "--convhull"), type="numeric", default=0.25,
+              help="distance to additional points to enlarge convex hull [default = 0.25]",
+              metavar="N"),
   make_option(c("-b", "--blackbg"), type="logical", default=FALSE,
               help="create plots with a black background", action="store_true"),
   make_option(c("-t", "--transpose"), type="logical", default=FALSE,
@@ -42,6 +45,7 @@ outpath = opt$options$out
 bwinv = opt$options$invert
 sdims = opt$options$selectdims
 draw.border = opt$options$border
+convhull.distance = opt$options$convhull
 
 palettes <- list(
   green.to.blue = colorRamp(brewer.pal(9,"GnBu")),
@@ -112,7 +116,7 @@ for(path in paths) {
   z = d[[path]]
   ranges = maxs - mins
   z = t((t(z) - mins) / ranges)
-  a <- 0.05
+  a <- convhull.distance
   X <- c(x, x + a, x, x - a)
   Y <- c(y + a, y, y - a, y)
   cpi <- chull(X, Y)
