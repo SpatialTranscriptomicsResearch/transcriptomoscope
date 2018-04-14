@@ -117,8 +117,11 @@ for(path in paths) {
   z = d[[path]]
   ranges = maxs - mins
   z = t((t(z) - mins) / ranges)
-  cpi <- chull(x, y)
-  cp <- list(x = x[cpi], y = y[cpi])
+  a <- 0.05
+  X <- c(x, x + a, x, x - a)
+  Y <- c(y + a, y, y - a, y)
+  cpi <- chull(X, Y)
+  cp <- list(x = X[cpi], y = Y[cpi])
 
   # Plot each column in Grayscale if there are more than 3 columns
   if (ncol(z) > 3) {
