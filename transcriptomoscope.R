@@ -127,7 +127,6 @@ for(path in paths) {
     par(mfrow = c(nr, nc), mar = c(0, 0, 0, 0), bg = ifelse(black.bg, "black", "white"))
     for (i in 1:ncol(z)) {
       v <- z[, i]
-      v <- (v - min(v)) / (max(v) - min(v))
       plot(x, y, type = 'n', bty = 'none', axes = FALSE, xlim = c(0, 34), ylim = c(0, 36))
       if (bwinv) {
         v <- 1 - v
