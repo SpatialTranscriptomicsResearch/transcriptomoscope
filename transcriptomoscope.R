@@ -14,8 +14,8 @@ option_list = list(
   make_option(c("", "--pal"), type="character", default="offwhite.to.black",
               help="palette to use. available: green.to.blue, spectral, offwhite.to.black",
               action="store"),
-  make_option(c("-o", "--outdir"), type="character", default=NULL,
-              help="specify output directory",
+  make_option(c("-o", "--out"), type="character", default="vtess.pdf",
+              help="specify output path [default = vtess.pdf]",
               action="store"),
   make_option(c("-inv", "--invertgrayscale"), type="logical", default=FALSE,
               help="invert grayscale in output plots (if number of columns is more than 3)",
@@ -38,7 +38,7 @@ black.bg = opt$options$blackbg
 transpose = opt$options$transpose
 pal.choice = opt$options$pal
 ncols = opt$options$columns
-outdir = opt$options$outdir
+outpath = opt$options$out
 bwinv = opt$options$invertgrayscale
 sdims = opt$options$selectdims
 draw.border = opt$options$border
@@ -57,11 +57,6 @@ palettes <- list(
 
 palette <- palettes[[pal.choice]]
 
-if (!is.null(outdir)) {
-  outdir <- paste0(outdir, "vtess.pdf")
-} else {
-  outdir <- getwd()
-}
 if (!is.null(sdims)) {
   ind <- as.integer(strsplit(sdims, split = "x")[[1]])
   stopifnot(length(ind) == 3)
@@ -104,7 +99,7 @@ maxs = apply(sapply(d, function(x) apply(x, 2, max)), 1, max)
 parse.coords <- function(n, delimiter=coord.delimiter)
   apply(do.call(rbind, strsplit(n, split = "x")), 2, as.numeric)
 
-pdf(file = outdir, width = 6*nc, height = 6*nr)
+pdf(file = outpath, width = 6*nc, height = 6*nr)
 par(mfrow = c(nr, nc), mar = c(0,0,0,0), bg = ifelse(black.bg, "black", "white"))
 for(path in paths) {
   print(path)
