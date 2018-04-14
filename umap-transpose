@@ -1,0 +1,4 @@
+#!/bin/bash
+
+DIR="$HOME/code/transcriptomoscope"
+$DIR/run-umap.py --transpose -f 100 -n 25 -r $@ && $DIR/transcriptomoscope umap_joint_*.txt && $DIR/transcriptomoscope.R --one -o umap.pdf umap_joint_*.txt
