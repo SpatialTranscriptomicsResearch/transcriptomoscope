@@ -12,7 +12,7 @@ option_list = list(
               help="ensure that genes are rows and columns are spots",
               action="store_true"),
   make_option(c("", "--pal"), type="character", default="offwhite.to.black",
-              help="palette to use. available: green.to.blue, spectral, offwhite.to.black",
+              help="palette to use. available: green.to.blue, spectral, offwhite.to.black [default = offwhite.to.black]",
               action="store"),
   make_option(c("-o", "--out"), type="character", default="vtess.pdf",
               help="specify output path [default = vtess.pdf]",
