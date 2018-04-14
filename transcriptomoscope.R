@@ -99,6 +99,7 @@ if (!is.null(ncols)) {
 
 mins = apply(sapply(d, function(x) apply(x, 2, min)), 1, min)
 maxs = apply(sapply(d, function(x) apply(x, 2, max)), 1, max)
+ranges = maxs - mins
 
 parse.coords <- function(n, delimiter=coord.delimiter)
   apply(do.call(rbind, strsplit(n, split = "x")), 2, as.numeric)
@@ -114,7 +115,6 @@ for(path in paths) {
   vtess <- deldir(x, y)
   tiles <- tile.list(vtess)
   z = d[[path]]
-  ranges = maxs - mins
   z = t((t(z) - mins) / ranges)
   a <- convhull.distance
   X <- c(x, x + a, x, x - a)
