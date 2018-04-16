@@ -2,6 +2,8 @@
 library("deldir")
 library("optparse")
 
+# TODO write out a PDF with a color gradient scale bar
+
 ARRAY.COLS = 31
 ARRAY.ROWS = 33
 
