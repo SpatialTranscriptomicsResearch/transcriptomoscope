@@ -4,6 +4,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--neighbors", metavar="N", type=int, default=256, help="number of neighbors")
+parser.add_argument("-d", "--dim", metavar="N", type=int, default=3, help="number of dimensions to project to")
 parser.add_argument("paths", metavar="path", nargs="+", type=str, help="input matrix, rows are samples")
 parser.add_argument("-t", "--transpose", action="store_true", help="input matrix, rows are samples")
 parser.add_argument("-i", "--individually", action="store_true", help="also perform UMAP separately for each file")
@@ -15,8 +16,6 @@ args = parser.parse_args()
 
 import umap
 import pandas as pd
-
-n_comp = 3
 
 matrices = []
 colnames = set()
@@ -44,7 +43,7 @@ for path in args.paths:
 
     if args.individually:
         print("Performing UMAP individually")
-        embedding = umap.UMAP(n_components=n_comp, n_neighbors=args.neighbors).fit_transform(matrix)
+        embedding = umap.UMAP(n_components=args.dim, n_neighbors=args.neighbors).fit_transform(matrix)
         df = pd.DataFrame(embedding, index=matrix.index)
         df.to_csv("umap_individual_%03d.txt" % idx, sep="\t")
         idx = idx + 1
@@ -64,7 +63,7 @@ matrix = pd.concat(matrices)
 print("Union")
 print(matrix.shape)
 print("Performing UMAP jointly")
-embedding = umap.UMAP(n_components=n_comp, n_neighbors=args.neighbors).fit_transform(matrix)
+embedding = umap.UMAP(n_components=args.dim, n_neighbors=args.neighbors).fit_transform(matrix)
 print("Performed UMAP")
 pd.DataFrame(embedding).to_csv("umap_joint.txt", sep="\t")
 
