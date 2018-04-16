@@ -2,6 +2,11 @@
 library("deldir")
 library("optparse")
 
+ARRAY.COLS = 31
+ARRAY.ROWS = 33
+
+add.grid = FALSE
+
 option_list = list(
   make_option(c("-1", "--one"), type="logical", default=FALSE, action="store_true",
               help="create one plot by interpreting three columns as red, green, and blue values. use this to plot dimensionality reduction results"),
@@ -9,6 +14,9 @@ option_list = list(
               help="change plotting order: pages correspond to samples, and panels to columns; by default pages correspond to columns and panels to samples."),
   make_option(c("-c", "--columns"), type="numeric", default=NULL,
               help="number of columns in grid plots [default = ceiling(sqrt(n)), where n is the number of samples]",
+              metavar="N"),
+  make_option(c("-m", "--margin"), type="numeric", default=0,
+              help="margin size. use 0 to include the frame, and use -1 to exclude the frame [default = 0]",
               metavar="N"),
   make_option(c("-s", "--split"), type="logical", default=FALSE,
               help="put each plot on an individual page", action="store_true"),
@@ -51,13 +59,13 @@ split.plots = opt$options$split
 black.bg = opt$options$blackbg
 transpose = opt$options$transpose
 pal.choice = opt$options$pal
-ncols = opt$options$columns
 outpath = opt$options$out
 bwinv = opt$options$invert
 sdims = opt$options$selectdims
 draw.border = opt$options$border
 convhull.distance = opt$options$convhull
 relative.frequency = !opt$options$abs & !one.pic.mode
+margin.offset = opt$options$margin
 
 palettes <- list(
   green.to.blue = colorRamp(brewer.pal(9,"GnBu")),
@@ -98,7 +106,6 @@ for(path in paths) {
     d[[path]] <- d[[path]][, ind]
   }
   coords[[path]] <- parse.coords(rownames(d[[path]]))
-  coords[[path]][,2] <- 36 - coords[[path]][,2]
   if (relative.frequency)
     d[[path]] = prop.table(d[[path]], 1)
 }
@@ -179,21 +186,34 @@ if(one.pic.mode) {
   }
 }
 
-pdf(file = outpath, width = 6*nc, height = 6*nr)
-par(mar = c(0, 0, 0, 0), bg = ifelse(black.bg, "black", "white"))
+plot.asp = (ARRAY.ROWS + 2 * margin.offset) / (ARRAY.COLS + 2 * margin.offset)
+
+pdf(file = outpath, width = 6*nc, height = 6*nr*plot.asp)
+par(mar = c(0, 0, 0, 0))
+if(black.bg)
+  par(bg="black")
 
 make.plot = function(path, col) {
   print(c(path, col))
   x <- coords[[path]][, 1]
   y <- coords[[path]][, 2]
+  plot(x, y, type = 'n', bty = 'none', axes = FALSE,
+       xlim = c(1 + 1 - (margin.offset + 0.5), 1 + ARRAY.COLS + (margin.offset + 0.5)),
+       ylim = c(1 + ARRAY.ROWS + (margin.offset + 0.5), 1 + 1 - (margin.offset + 0.5)),
+       asp=1)
+  if (add.grid) {
+    abline(h=2:(ARRAY.ROWS+1))
+    abline(h=c(1, ARRAY.ROWS+2), col='red', lwd=2)
+    abline(v=2:(ARRAY.COLS+1))
+    abline(v=c(1, ARRAY.COLS+2), col='blue', lwd=2)
+  }
   if(one.pic.mode) {
     while (ncol(z[[path]]) < 3)
       z[[path]] <- cbind(z[[path]], 0)
-    plot(x, y, type = 'n', bty = 'none', axes = FALSE, xlim = c(0, 34), ylim = c(0, 36))
-    plot(tiles[[path]], fillcol = rgb(z[[path]][,1:3]), showpoints = FALSE, border = ifelse(draw.border, TRUE, NA), clipp = cp[[path]], add = TRUE)
+    plot(tiles[[path]], fillcol = rgb(z[[path]][,1:3]), showpoints = FALSE,
+         border = ifelse(draw.border, TRUE, NA), clipp = cp[[path]], add = TRUE)
   } else {
     v <- z[[path]][, col]
-    plot(x, y, type = 'n', bty = 'none', axes = FALSE, xlim = c(0, 34), ylim = c(0, 36))
     if (bwinv) {
       v <- 1 - v
     }
