@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 library("deldir")
 library("optparse")
+library("RColorBrewer")
 
 # TODO write out a PDF with a color gradient scale bar
 
