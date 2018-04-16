@@ -68,6 +68,7 @@ relative.frequency = !opt$options$abs & !one.pic.mode
 margin.offset = opt$options$margin
 
 palettes <- list(
+  discrete = brewer.pal(12, "Paired"),
   green.to.blue = colorRamp(brewer.pal(9,"GnBu")),
   the.cols = colorRamp(c(rgb(255,255,217, maxColorValue=255),
     rgb(65,182,196, maxColorValue=255),
@@ -153,8 +154,9 @@ for(path in paths) {
   y <- coords[[path]][, 2]
   vtess <- deldir(x, y)
   tiles[[path]] <- tile.list(vtess)
-  z[[path]] = d[[path]]
-  z[[path]] = t((t(z[[path]]) - mins) / ranges)
+  z[[path]] <- d[[path]]
+  if (pal.choice != "discrete")
+    z[[path]] <- t((t(z[[path]]) - mins) / ranges)
 
   cp[[path]] <- enlarged.convex.hull(x, y, convhull.distance)
 }
@@ -217,7 +219,12 @@ make.plot = function(path, col) {
     if (bwinv) {
       v <- 1 - v
     }
-    cols <- rgb(palette(v), maxColorValue=255)
+    if (pal.choice == "discrete") {
+      stopifnot((all(v == as.integer(v)), min(v) >= 1, max(v) <= length(palette))
+      cols <- palette[v]
+    } else {
+      cols <- rgb(palette(v), maxColorValue=255)
+    }
     plot(tiles[[path]], fillcol = cols, showpoints = FALSE, border = ifelse(draw.border, TRUE, NA), clipp = cp[[path]], add = TRUE)
   }
 }
