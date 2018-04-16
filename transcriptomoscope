@@ -15,12 +15,25 @@ $DIR/transcriptomoscope.R --split -O -o vtess-split-rel-samplewise.pdf $@ &
 $DIR/transcriptomoscope.R --split --abs -o vtess-split-abs-colwise.pdf $@ &
 $DIR/transcriptomoscope.R --split -O --abs -o vtess-split-abs-samplewise.pdf $@ &
 
-$DIR/run-umap.py -f 100 -n 25 $@
+for method in UMAP PCA t-SNE
+do
+echo $DIR/run-umap.py --dim-red ${method} -o ${method}_ -f 100 -n 25 $@
+$DIR/run-umap.py --dim-red ${method} -o ${method}_ -f 100 -n 25 $@
 
-$DIR/transcriptomoscope.R --one -o vtess-grid-umap.pdf umap_joint_* &
-$DIR/transcriptomoscope.R --abs -o vtess-grid-umap-colwise.pdf umap_joint_* &
-$DIR/transcriptomoscope.R -O --abs -o vtess-grid-umap-samplewise.pdf umap_joint_* &
+$DIR/transcriptomoscope.R --one -o vtess-grid-${method}.pdf ${method}_joint_* &
+$DIR/transcriptomoscope.R --abs -o vtess-grid-${method}-colwise.pdf ${method}_joint_* &
+$DIR/transcriptomoscope.R -O --abs -o vtess-grid-${method}-samplewise.pdf ${method}_joint_* &
 
-$DIR/transcriptomoscope.R --split --one -o vtess-split-umap.pdf umap_joint_* &
-$DIR/transcriptomoscope.R --split --abs -o vtess-split-umap-colwise.pdf umap_joint_* &
-$DIR/transcriptomoscope.R --split -O --abs -o vtess-split-umap-samplewise.pdf umap_joint_* &
+$DIR/transcriptomoscope.R --split --one -o vtess-split-${method}.pdf ${method}_joint_* &
+$DIR/transcriptomoscope.R --split --abs -o vtess-split-${method}-colwise.pdf ${method}_joint_* &
+$DIR/transcriptomoscope.R --split -O --abs -o vtess-split-${method}-samplewise.pdf ${method}_joint_* &
+done
+
+for method in k-means Agglomerative
+do
+echo $DIR/run-umap.py --cluster --ncluster 1-12 --cluster-method ${method} -o ${method}_ -f 100 -n 25 $@
+$DIR/run-umap.py --cluster --ncluster 1-12 --cluster-method ${method} -o ${method}_ -f 100 -n 25 $@
+
+$DIR/transcriptomoscope.R --pal discrete -o vtess-grid-${method}.pdf ${method}_joint_* &
+$DIR/transcriptomoscope.R --split --pal discrete -o vtess-split-${method}.pdf ${method}_joint_* &
+done
