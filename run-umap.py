@@ -71,12 +71,25 @@ def get_cluster_fnc(cluster, nclusters, opts):
         return partial(do_kmeans, nclusters=nclusters)
     raise ValueError(f"Method {dred:s} not recognized.")
 
+def hyphen_range(s):
+    """ Takes a range in form of "a-b" and generate a list of numbers between a and b inclusive.
+    Also accepts comma separated ranges like "a-b,c-d,f" will build a list which will include
+    Numbers from a to b, a to d and f"""
+    s = "".join(s.split()) #removes white space
+    r = set()
+    for x in s.split(','):
+        t = x.split('-')
+        if len(t) not in [1,2]: raise SyntaxError("hash_range is given its arguement as "+s+" which seems not correctly formated.")
+        r.add(int(t[0])) if len(t)==1 else r.update(set(range(int(t[0]),int(t[1])+1)))
+    l = list(r)
+    l.sort()
+    return l
 
 def get_run_fnc(opts):
     if opts.cluster:
         return get_cluster_fnc(
             opts.cluster_method,
-            [int(x) for x in opts.nclusters.split(",")],
+            hyphen_range(opts.nclusters),
             opts)
     return get_dred_fnc(opts.dim_red, opts)
 
@@ -97,7 +110,7 @@ parser.add_argument("--dim-red", type=Dred, choices=list(Dred), default=Dred.UMA
 parser.add_argument("--perplexity", type=float, default=10, help="preplexity parameter of t-SNE dimensionality reduction")
 parser.add_argument("--cluster", action="store_true", help="cluster data (instead of doing dimensionality reduction on it)")
 parser.add_argument("--cluster-method", type=Cluster, choices=list(Cluster), default=Cluster.KMEANS, help="clustering method")
-parser.add_argument("--nclusters", default="3", help="comma-separated list of number of clusters to use when --cluster is set")
+parser.add_argument("--nclusters", default="1-12", type=str, help="comma-separated list of number ranges of clusters to use when --cluster is set, e.g. \"2,5-7,12\". [default = 1-12]")
 
 args = parser.parse_args()
 
