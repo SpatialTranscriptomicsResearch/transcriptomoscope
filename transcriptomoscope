@@ -5,12 +5,22 @@ DIR="${BASH_SOURCE%/*}/"
 # echo $DIR
 # echo $@
 
-$DIR/transcriptomoscope.R -o vtess-rel-colwise.pdf $@ &
-$DIR/transcriptomoscope.R -O -o vtess-rel-samplewise.pdf $@ &
-$DIR/transcriptomoscope.R --abs -o vtess-abs-colwise.pdf $@ &
-$DIR/transcriptomoscope.R -O --abs -o vtess-abs-samplewise.pdf $@ &
+$DIR/transcriptomoscope.R -o vtess-grid-rel-colwise.pdf $@ &
+$DIR/transcriptomoscope.R -O -o vtess-grid-rel-samplewise.pdf $@ &
+$DIR/transcriptomoscope.R --abs -o vtess-grid-abs-colwise.pdf $@ &
+$DIR/transcriptomoscope.R -O --abs -o vtess-grid-abs-samplewise.pdf $@ &
+
+$DIR/transcriptomoscope.R --split -o vtess-split-rel-colwise.pdf $@ &
+$DIR/transcriptomoscope.R --split -O -o vtess-split-rel-samplewise.pdf $@ &
+$DIR/transcriptomoscope.R --split --abs -o vtess-split-abs-colwise.pdf $@ &
+$DIR/transcriptomoscope.R --split -O --abs -o vtess-split-abs-samplewise.pdf $@ &
 
 $DIR/run-umap.py -f 100 -n 25 $@
-$DIR/transcriptomoscope.R --one -o vtess-umap.pdf umap_joint_* &
-$DIR/transcriptomoscope.R --abs -o vtess-umap-colwise.pdf umap_joint_* &
-$DIR/transcriptomoscope.R -O --abs -o vtess-umap-samplewise.pdf umap_joint_* &
+
+$DIR/transcriptomoscope.R --one -o vtess-grid-umap.pdf umap_joint_* &
+$DIR/transcriptomoscope.R --abs -o vtess-grid-umap-colwise.pdf umap_joint_* &
+$DIR/transcriptomoscope.R -O --abs -o vtess-grid-umap-samplewise.pdf umap_joint_* &
+
+$DIR/transcriptomoscope.R --split --one -o vtess-split-umap.pdf umap_joint_* &
+$DIR/transcriptomoscope.R --split --abs -o vtess-split-umap-colwise.pdf umap_joint_* &
+$DIR/transcriptomoscope.R --split -O --abs -o vtess-split-umap-samplewise.pdf umap_joint_* &
