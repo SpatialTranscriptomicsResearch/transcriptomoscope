@@ -87,6 +87,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--neighbors", metavar="N", type=int, default=256, help="number of neighbors")
 parser.add_argument("-d", "--dim", metavar="N", type=int, default=3, help="number of dimensions to project to")
 parser.add_argument("paths", metavar="path", nargs="+", type=str, help="input matrix, rows are samples")
+parser.add_argument("-o", "--out", metavar="path", type=str, default="", help="prefix for generated output files")
 parser.add_argument("-t", "--transpose", action="store_true", help="input matrix, rows are samples")
 parser.add_argument("-i", "--individually", action="store_true", help="also run separately for each file")
 parser.add_argument("-r", "--relfreq", action="store_true", help="use relative frequency")
@@ -132,7 +133,7 @@ for path in args.paths:
         print(f"Performing {args.dim_red} individually")
         embedding = run(matrix)
         df = pd.DataFrame(embedding, index=matrix.index)
-        df.to_csv("individual_%03d.txt" % idx, sep="\t")
+        df.to_csv("%sindividual_%03d.txt" % (args.out, idx), sep="\t")
         idx = idx + 1
 
     colnames = colnames.union(matrix.columns.values)
@@ -152,7 +153,7 @@ print(matrix.shape)
 print(f"Performing {args.dim_red} jointly")
 embedding = run(matrix)
 print(f"Performed {args.dim_red}")
-pd.DataFrame(embedding).to_csv("joint.txt", sep="\t")
+pd.DataFrame(embedding).to_csv("%sjoint.txt" % args.out, sep="\t")
 
 idx = 0
 begin = 0
@@ -161,7 +162,7 @@ for matrix in matrices:
     end = begin + nrow
 
     df = pd.DataFrame(embedding[range(begin, end), :], index=matrix.index)
-    df.to_csv("joint_%03d.txt" % idx, sep="\t")
+    df.to_csv("%sjoint_%03d.txt" % (args.out, idx), sep="\t")
 
     idx = idx + 1
     begin = end
