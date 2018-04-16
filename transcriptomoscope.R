@@ -109,7 +109,7 @@ for(path in paths) {
     d[[path]] <- d[[path]][, ind]
   }
   coords[[path]] <- parse.coords(rownames(d[[path]]))
-  if (relative.frequency)
+  if (relative.frequency && pal.choice != "discrete")
     d[[path]] = prop.table(d[[path]], 1)
 }
 
@@ -222,7 +222,7 @@ make.plot = function(path, col) {
       v <- 1 - v
     }
     if (pal.choice == "discrete") {
-      stopifnot((all(v == as.integer(v)), min(v) >= 1, max(v) <= length(palette))
+      stopifnot(all(v == as.integer(v)), min(v) >= 1, max(v) <= length(palette))
       cols <- palette[v]
     } else {
       cols <- rgb(palette(v), maxColorValue=255)
