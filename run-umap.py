@@ -62,6 +62,7 @@ class Cluster(Enum):
     Enum of available clustering methods.
     """
     AGGLOMERATIVE = 'Agglomerative'
+    GMIX = 'GaussianMixture'
     KMEANS = 'k-means'
     def __str__(self):
         return self.value
@@ -83,6 +84,7 @@ def get_cluster_fnc(cluster, nclusters, opts):
     """
     from sklearn.cluster import AgglomerativeClustering
     from sklearn.cluster import KMeans
+    from sklearn.mixture import GaussianMixture
 
     def cache(f):
         from tempfile import TemporaryDirectory
@@ -99,6 +101,13 @@ def get_cluster_fnc(cluster, nclusters, opts):
             return clusterer.fit_predict(x)
         return np.stack(map(do_clustering, nclusters), axis=1) + 1
 
+    def do_gmix(x, nclusters, *args, **kwargs):
+        clusterer = GaussianMixture(*args, **kwargs)
+        return np.stack([
+            clusterer.set_params(n_components=n).fit(x).predict(x)
+            for n in nclusters
+        ], axis=1) + 1
+
     def do_kmeans(x, nclusters, *args, **kwargs):
         return np.stack([
             KMeans(*args, n_clusters=n, **kwargs).fit_predict(x)
@@ -107,6 +116,8 @@ def get_cluster_fnc(cluster, nclusters, opts):
 
     if cluster == Cluster.AGGLOMERATIVE:
         return partial(do_agglomerative, nclusters=nclusters)
+    if cluster == Cluster.GMIX:
+        return partial(do_gmix, nclusters=nclusters)
     if cluster == Cluster.KMEANS:
         return partial(do_kmeans, nclusters=nclusters)
     raise ValueError(f"Method {cluster:s} not recognized.")
