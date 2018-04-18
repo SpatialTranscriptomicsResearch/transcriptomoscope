@@ -250,7 +250,7 @@ make.plot = function(path, col) {
     plot(tiles[[path]], fillcol = cols, showpoints = FALSE, border = ifelse(draw.border, TRUE, NA), clipp = cp[[path]], add = TRUE)
   }
   if (opt$options$outline)
-    lines(cp[[path]], col='black')
+    lines(rbind(cp[[path]],cp[[path]][1,]), col='black')
   if (opt$options$points)
     points(coords[[path]], col='black', cex=2)
 }
