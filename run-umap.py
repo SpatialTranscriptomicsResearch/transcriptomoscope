@@ -45,8 +45,11 @@ def get_dred_fnc(dred, opts):
         return UMAP(*args, **kwargs).fit_transform(x)
     def do_pca(x, *args, **kwargs):
         return PCA(*args, **kwargs).fit_transform(x)
-    def do_tsne(x, *args, **kwargs):
-        return TSNE(*args, **kwargs).fit_transform(x)
+    def do_tsne(x, perplexity, *args, **kwargs):
+        local_perplexity = min(x.shape[0] / 3.5, perplexity)
+        if not local_perplexity == perplexity:
+            LOG(INFO, f'lowering perplexity to {local_perplexity}')
+        return TSNE(*args, perplexity=local_perplexity, **kwargs).fit_transform(x)
 
     if dred == Dred.UMAP:
         return partial(do_umap, n_components=opts.dim, n_neighbors=opts.neighbors)
