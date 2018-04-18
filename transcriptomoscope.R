@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 library("deldir")
 library("optparse")
+library("alphahull")
 library("RColorBrewer")
 
 # TODO write out a PDF with a color gradient scale bar
@@ -9,6 +10,8 @@ ARRAY.COLS = 31
 ARRAY.ROWS = 33
 
 add.grid = FALSE
+
+use.convex.hull = FALSE
 
 option_list = list(
   make_option(c("-1", "--one"), type="logical", default=FALSE, action="store_true",
@@ -23,8 +26,15 @@ option_list = list(
               metavar="N"),
   make_option(c("-s", "--split"), type="logical", default=FALSE,
               help="put each plot on an individual page", action="store_true"),
-  make_option(c("-C", "--convhull"), type="numeric", default=0.25,
-              help="distance to additional points to enlarge convex hull [default = 0.25]",
+  make_option(c("", "--points"), type="logical", default=FALSE,
+              help="plot points for the spots", action="store_true"),
+  make_option(c("", "--outline"), type="logical", default=FALSE,
+              help="draw the outline", action="store_true"),
+  make_option(c("-H", "--hull"), type="numeric", default=0.25,
+              help="distance to additional points to enlarge hull [default = 0.25]",
+              metavar="N"),
+  make_option(c("-A", "--ahull"), type="numeric", default=5,
+              help="alpha value to use for the alpha-convex hull calculation. 0 corresponds to a standard convex hull [default = 5]",
               metavar="N"),
   make_option(c("-b", "--blackbg"), type="logical", default=FALSE,
               help="create plots with a black background", action="store_true"),
@@ -142,8 +152,17 @@ ranges = maxs - mins
 enlarged.convex.hull <- function(x, y, a) {
   X <- c(x, x + a, x, x - a)
   Y <- c(y + a, y, y - a, y)
-  cpi <- chull(X, Y)
-  list(x = X[cpi], y = Y[cpi])
+  pts = cbind(X,Y)
+  pts = pts + rnorm(length(pts), 0, 0.05)
+  pts = pts[!duplicated(pts),]
+  if (use.convex.hull) {
+    cpi <- chull(X, Y)
+    list(x = X[cpi], y = Y[cpi])
+  } else {
+    hull <- ahull(pts, alpha=opt$options$ahull)
+    indx=hull$arcs[,"end1"]
+    list(x = X[indx], y=Y[indx])
+  }
 }
 
 vtess <- list()
@@ -230,6 +249,10 @@ make.plot = function(path, col) {
     }
     plot(tiles[[path]], fillcol = cols, showpoints = FALSE, border = ifelse(draw.border, TRUE, NA), clipp = cp[[path]], add = TRUE)
   }
+  if (opt$options$outline)
+    lines(cp[[path]], col='red')
+  if (opt$options$points)
+    points(coords[[path]], col='blue', cex=2)
 }
 
 pl(make.plot)
