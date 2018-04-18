@@ -157,11 +157,11 @@ parser.add_argument("paths", metavar="path", nargs="+", type=str, help="input ma
 parser.add_argument("-o", "--out", metavar="path", type=str, default="", help="prefix for generated output files")
 parser.add_argument("-t", "--transpose", action="store_true", help="input matrix, rows are samples")
 parser.add_argument("-i", "--individually", action="store_true", help="also run separately for each file")
-parser.add_argument("-r", "--relfreq", action="store_true", help="use relative frequency")
+parser.add_argument("-a", "--absfreq", action="store_true", help="use absolute frequency; default is to use relative frequency")
 parser.add_argument("-p", "--pseudocnt", metavar="FP", type=float, default=0.0, help="pseudo count to add to counts")
 parser.add_argument("-f", "--filter", metavar="FP", type=float, default=0.0, help="filter samples with sums less than this value")
 parser.add_argument("--dim-red", type=Dred, choices=list(Dred), default=Dred.UMAP, help="method for dimensionality reduction")
-parser.add_argument("--perplexity", type=float, default=10, help="preplexity parameter of t-SNE dimensionality reduction")
+parser.add_argument("--perplexity", type=float, default=50, help="perplexity parameter of t-SNE dimensionality reduction")
 parser.add_argument("--cluster", type=Cluster, choices=list(Cluster), help="clustering method. if set, clusters the data instead of doing dimensionality reduction on it.")
 parser.add_argument("--nclusters", default="1-12", type=str, help="comma-separated list of number ranges of clusters to use when --cluster is set, e.g. \"2,5-7,12\". [default = 1-12]")
 
@@ -184,7 +184,7 @@ for path in args.paths:
 
     rs = matrix.sum(axis=1)
 
-    if args.relfreq:
+    if not args.absfreq:
         matrix = (matrix.T / rs).T
 
     if args.filter > 0.0:
