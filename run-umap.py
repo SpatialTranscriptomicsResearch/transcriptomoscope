@@ -2,8 +2,14 @@
 
 from enum import Enum
 from functools import partial
+import logging
+from logging import INFO
 
 import numpy as np
+
+
+logging.basicConfig(level=INFO)
+LOG = logging.getLogger().log
 
 
 class Dred(Enum):
@@ -87,10 +93,12 @@ def hyphen_range(s):
 
 def get_run_fnc(opts):
     if opts.cluster:
+        LOG(INFO, f'Using clustering method {opts.cluster:s}')
         return get_cluster_fnc(
             opts.cluster_method,
             hyphen_range(opts.nclusters),
             opts)
+    LOG(INFO, f'Using dimensionality reduction method {opts.dim_red:s}')
     return get_dred_fnc(opts.dim_red, opts)
 
 
@@ -122,14 +130,12 @@ matrices = []
 colnames = set()
 idx = 0
 for path in args.paths:
-    print("reading path %s" % path)
+    LOG(INFO, f'Reading path {path:s}')
 
     matrix = pd.DataFrame(pd.read_csv(path, index_col=0, delimiter='\t')) + args.pseudocnt
 
     if args.transpose:
         matrix = matrix.transpose()
-
-    print(matrix.shape)
 
     rs = matrix.sum(axis=1)
 
@@ -138,12 +144,12 @@ for path in args.paths:
 
     if args.filter > 0.0:
         matrix = matrix.loc[rs >= args.filter, :]
-        print(matrix.shape)
 
     matrices = matrices + [matrix]
 
     if args.individually:
-        print(f"Performing {args.dim_red} individually")
+        LOG(INFO, 'Running individual analysis '
+            f'(samples={matrix.shape[0]:d}, features={matrix.shape[1]:d})')
         embedding = run(matrix)
         df = pd.DataFrame(embedding, index=matrix.index)
         df.to_csv("%sindividual_%03d.txt" % (args.out, idx), sep="\t")
@@ -161,11 +167,10 @@ def union_matrix(matrix, colnames):
 matrices = list(map(lambda matrix: union_matrix(matrix, colnames), matrices))
 
 matrix = pd.concat(matrices)
-print("Union")
-print(matrix.shape)
-print(f"Performing {args.dim_red} jointly")
+LOG(INFO, 'Performing joint analysis '
+    f'(samples={matrix.shape[0]:d}, features={matrix.shape[1]:d})')
 embedding = run(matrix)
-print(f"Performed {args.dim_red}")
+
 pd.DataFrame(embedding).to_csv("%sjoint.txt" % args.out, sep="\t")
 
 idx = 0
