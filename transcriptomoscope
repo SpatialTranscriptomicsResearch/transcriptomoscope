@@ -29,7 +29,7 @@ $DIR/transcriptomoscope.R --split --abs -o vtess-split-${method}-colwise.pdf ${m
 $DIR/transcriptomoscope.R --split -O --abs -o vtess-split-${method}-samplewise.pdf ${method}_joint_* &
 done
 
-for method in k-means Agglomerative
+for method in k-means Agglomerative GaussianMixture
 do
 echo $DIR/run-umap.py --ncluster 1-12 --cluster ${method} -o ${method}_ -f 100 -n 25 $@
 $DIR/run-umap.py --ncluster 1-12 --cluster ${method} -o ${method}_ -f 100 -n 25 $@
