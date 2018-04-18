@@ -13,6 +13,9 @@ LOG = logging.getLogger().log
 
 
 class Dred(Enum):
+    """
+    Enum of available dimensionality reduction methods.
+    """
     UMAP = 'UMAP'
     PCA = 'PCA'
     TSNE = 't-SNE'
@@ -20,6 +23,20 @@ class Dred(Enum):
         return self.value
 
 def get_dred_fnc(dred, opts):
+    """
+    Returns the dimensionality reduction function corresponding to the given
+    `dred` method.
+
+    Parameters
+    ----------
+    dred : Dred
+    opts : dict
+        Dictionary with options for the given dimensionality reduction method.
+
+    Returns
+    -------
+    dred_fnc: array-like -> array-like
+    """
     from umap import UMAP
     from sklearn.decomposition import PCA
     from sklearn.manifold import TSNE
@@ -41,12 +58,29 @@ def get_dred_fnc(dred, opts):
 
 
 class Cluster(Enum):
+    """
+    Enum of available clustering methods.
+    """
     AGGLOMERATIVE = 'Agglomerative'
     KMEANS = 'k-means'
     def __str__(self):
         return self.value
 
 def get_cluster_fnc(cluster, nclusters, opts):
+    """
+    Returns the clustering function corresponding to the given `cluster`
+    method.
+
+    Parameters
+    ----------
+    cluster : Cluster
+    opts : dict
+        Dictionary with options for the given clustering method.
+
+    Returns
+    -------
+    cluster_fnc: array-like -> array-like
+    """
     from sklearn.cluster import AgglomerativeClustering
     from sklearn.cluster import KMeans
 
@@ -92,6 +126,8 @@ def hyphen_range(s):
     return l
 
 def get_run_fnc(opts):
+    """Returns the transformation that will be applied to the data"""
+    if opts.cluster is not None:
     if opts.cluster:
         LOG(INFO, f'Using clustering method {opts.cluster:s}')
         return get_cluster_fnc(
