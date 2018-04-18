@@ -31,8 +31,8 @@ done
 
 for method in k-means Agglomerative
 do
-echo $DIR/run-umap.py --cluster --ncluster 1-12 --cluster-method ${method} -o ${method}_ -f 100 -n 25 $@
-$DIR/run-umap.py --cluster --ncluster 1-12 --cluster-method ${method} -o ${method}_ -f 100 -n 25 $@
+echo $DIR/run-umap.py --ncluster 1-12 --cluster ${method} -o ${method}_ -f 100 -n 25 $@
+$DIR/run-umap.py --ncluster 1-12 --cluster ${method} -o ${method}_ -f 100 -n 25 $@
 
 $DIR/transcriptomoscope.R --pal discrete -o vtess-grid-${method}.pdf ${method}_joint_* &
 $DIR/transcriptomoscope.R --split --pal discrete -o vtess-split-${method}.pdf ${method}_joint_* &
