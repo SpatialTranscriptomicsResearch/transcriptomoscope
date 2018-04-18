@@ -163,7 +163,7 @@ parser.add_argument("-f", "--filter", metavar="FP", type=float, default=0.0, hel
 parser.add_argument("--dim-red", type=Dred, choices=list(Dred), default=Dred.UMAP, help="method for dimensionality reduction")
 parser.add_argument("--perplexity", type=float, default=10, help="preplexity parameter of t-SNE dimensionality reduction")
 parser.add_argument("--cluster", type=Cluster, choices=list(Cluster), help="clustering method. if set, clusters the data instead of doing dimensionality reduction on it.")
-parser.add_argument("--nclusters", default=None, type=str, help="comma-separated list of number ranges of clusters to use when --cluster is set, e.g. \"2,5-7,12\". [default = 1-12]")
+parser.add_argument("--nclusters", default="1-12", type=str, help="comma-separated list of number ranges of clusters to use when --cluster is set, e.g. \"2,5-7,12\". [default = 1-12]")
 
 args = parser.parse_args()
 
