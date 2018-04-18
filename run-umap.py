@@ -69,7 +69,7 @@ def get_cluster_fnc(cluster, nclusters, opts):
         return partial(do_agglomerative, nclusters=nclusters)
     if cluster == Cluster.KMEANS:
         return partial(do_kmeans, nclusters=nclusters)
-    raise ValueError(f"Method {dred:s} not recognized.")
+    raise ValueError(f"Method {cluster:s} not recognized.")
 
 def hyphen_range(s):
     """ Takes a range in form of "a-b" and generate a list of numbers between a and b inclusive.
