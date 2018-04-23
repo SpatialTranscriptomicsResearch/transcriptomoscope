@@ -24,6 +24,8 @@ option_list = list(
   make_option(c("-m", "--margin"), type="numeric", default=0,
               help="margin size. use 0 to include the frame, and use -1 to exclude the frame [default = 0]",
               metavar="N"),
+  make_option(c("-l", "--lab"), type="logical", default=FALSE,
+              help="use Lab color space", action="store_true"),
   make_option(c("-s", "--split"), type="logical", default=FALSE,
               help="put each plot on an individual page", action="store_true"),
   make_option(c("", "--points"), type="logical", default=FALSE,
@@ -40,6 +42,8 @@ option_list = list(
               help="create plots with a black background", action="store_true"),
   make_option(c("", "--abs"), type="logical", default=FALSE,
               help="plot absolute values when not using --one", action="store_true"),
+  make_option(c("", "--indiv"), type="logical", default=FALSE,
+              help="scale each plot independently", action="store_true"),
   make_option(c("-t", "--transpose"), type="logical", default=FALSE,
               help="ensure that genes are rows and columns are spots",
               action="store_true"),
@@ -73,6 +77,7 @@ black.bg = opt$options$blackbg
 transpose = opt$options$transpose
 pal.choice = opt$options$pal
 outpath = opt$options$out
+indiv.scale = opt$options$indiv
 bwinv = opt$options$invert
 sdims = opt$options$selectdims
 draw.border = opt$options$border
@@ -210,6 +215,22 @@ if(one.pic.mode) {
   }
 }
 
+make.lab.from.cube = function(x) {
+  r <- x[,1]
+  g <- x[,2]
+  b <- x[,3]
+  # r <- x[,1]
+  # g <- x[,2]
+  # b <- x[,3]
+  r = as.vector(r)
+  g = as.vector(g)
+  b = as.vector(b)
+  print(summary(cbind(r,g,b)))
+  lab = cbind(r*100, g * 200 - 100, 200 * b - 100)
+  rgb(convertColor(lab, from="Lab", to="sRGB"))
+  # return(lab)
+}
+
 plot.asp = (ARRAY.ROWS + 2 * margin.offset) / (ARRAY.COLS + 2 * margin.offset)
 
 pdf(file = outpath, width = 6*nc, height = 6*nr*plot.asp)
@@ -234,17 +255,24 @@ make.plot = function(path, col) {
   if(one.pic.mode) {
     while (ncol(z[[path]]) < 3)
       z[[path]] <- cbind(z[[path]], 0)
-    plot(tiles[[path]], fillcol = rgb(z[[path]][,1:3]), showpoints = FALSE,
+    print(head(z[[path]]))
+    cols <- rgb(z[[path]][,1:3])
+    if (opt$options$lab)
+      cols <- make.lab.from.cube(z[[path]])
+    plot(tiles[[path]], fillcol = cols, showpoints = FALSE,
          border = ifelse(draw.border, TRUE, NA), clipp = cp[[path]], add = TRUE)
   } else {
     v <- z[[path]][, col]
-    if (bwinv) {
-      v <- 1 - v
-    }
     if (pal.choice == "discrete") {
       stopifnot(all(v == as.integer(v)), min(v) >= 1, max(v) <= length(palette))
       cols <- palette[v]
     } else {
+      if (bwinv)
+        v <- 1 - v
+      if (indiv.scale) {
+        # v = v - min(v)
+        v = v / max(v)
+      }
       cols <- rgb(palette(v), maxColorValue=255)
     }
     plot(tiles[[path]], fillcol = cols, showpoints = FALSE, border = ifelse(draw.border, TRUE, NA), clipp = cp[[path]], add = TRUE)
