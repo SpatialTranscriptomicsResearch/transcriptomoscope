@@ -1,6 +1,8 @@
 #!/usr/bin/env Rscript
 library("deldir")
 library("optparse")
+library("sp")
+library("rgeos")
 library("alphahull")
 library("RColorBrewer")
 
@@ -84,6 +86,7 @@ draw.border = opt$options$border
 convhull.distance = opt$options$convhull
 relative.frequency = !opt$options$abs & !one.pic.mode
 margin.offset = opt$options$margin
+restrict.to.frame = TRUE # make optional
 
 palettes <- list(
   discrete = brewer.pal(12, "Paired"),
@@ -166,7 +169,36 @@ enlarged.convex.hull <- function(x, y, a) {
   } else {
     hull <- ahull(pts, alpha=opt$options$ahull)
     indx=hull$arcs[,"end1"]
-    list(x = X[indx], y=Y[indx])
+    the.hull <- list(x = X[indx], y=Y[indx])
+
+    if (restrict.to.frame) {
+      alpha = 0.5
+      corner.size <- 1 + 5
+
+      frame.x = c(1 + alpha, 1 + ARRAY.COLS - alpha, 1 + ARRAY.COLS - alpha, 1 + alpha)
+      frame.y = c(1 + alpha, 1 + alpha, 1 + ARRAY.ROWS - alpha, 1 + ARRAY.ROWS - alpha)
+
+      corner.x = c(1 + alpha, corner.size - alpha, corner.size - alpha, 1 + alpha)
+      corner.y = c(1 + alpha, 1 + alpha, corner.size - alpha, corner.size - alpha)
+
+      unitsq <- Polygon(matrix(c(frame.x, frame.y), ncol=2, byrow=FALSE))
+      corner <- Polygon(matrix(c(corner.x, corner.y), ncol=2, byrow=FALSE))
+      thehull <- Polygon(matrix(c(the.hull$x, the.hull$y), ncol=2, byrow=FALSE))
+
+      inside <- gDifference(SpatialPolygons(list(Polygons(list(unitsq), "unitsq"))),
+                            SpatialPolygons(list(Polygons(list(corner), "corner"))))
+      inters <- gIntersection(SpatialPolygons(list(Polygons(list(thehull), "hull"))),
+                              inside)
+
+      res <- as.data.frame(inters@polygons[[1]]@Polygons[[1]]@coords)
+
+      res[-nrow(res),]
+
+    } else {
+
+      the.hull
+
+    }
   }
 }
 
