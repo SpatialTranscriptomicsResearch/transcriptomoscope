@@ -45,18 +45,26 @@ def get_dred_fnc(dred, opts):
         return UMAP(*args, **kwargs).fit_transform(x)
     def do_pca(x, *args, **kwargs):
         return PCA(*args, **kwargs).fit_transform(x)
-    def do_tsne(x, perplexity, *args, **kwargs):
-        local_perplexity = min(x.shape[0] / 3.5, perplexity)
+    def do_tsne(x, perplexity, initial_dims, *args, **kwargs):
+        if x.shape[1] > initial_dims:
+            LOG(INFO, f'reducing initial dimensionality to {initial_dims}')
+            pca_kwargs = kwargs
+            pca_kwargs.pop("n_components")
+            y = PCA(*args, **pca_kwargs, n_components=initial_dims).fit_transform(x)
+        else:
+            y = x
+
+        local_perplexity = min(y.shape[0] / 3.5, perplexity)
         if not local_perplexity == perplexity:
             LOG(INFO, f'lowering perplexity to {local_perplexity}')
-        return TSNE(*args, perplexity=local_perplexity, **kwargs).fit_transform(x)
+        return TSNE(*args, perplexity=local_perplexity, **kwargs).fit_transform(y)
 
     if dred == Dred.UMAP:
         return partial(do_umap, n_components=opts.dim, n_neighbors=opts.neighbors)
     if dred == Dred.PCA:
         return partial(do_pca, n_components=opts.dim)
     if dred == Dred.TSNE:
-        return partial(do_tsne, n_components=opts.dim, perplexity=opts.perplexity)
+        return partial(do_tsne, n_components=opts.dim, perplexity=opts.perplexity, initial_dims=opts.initial_dims)
     raise ValueError(f"Method {dred:s} not recognized.")
 
 
@@ -154,7 +162,7 @@ def get_run_fnc(opts):
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-n", "--neighbors", metavar="N", type=int, default=256, help="number of neighbors")
+parser.add_argument("-n", "--neighbors", metavar="N", type=int, default=256, help="number of neighbors for UMAP")
 parser.add_argument("-d", "--dim", metavar="N", type=int, default=3, help="number of dimensions to project to")
 parser.add_argument("paths", metavar="path", nargs="+", type=str, help="input matrix, rows are samples")
 parser.add_argument("-o", "--out", metavar="path", type=str, default="", help="prefix for generated output files")
@@ -165,6 +173,7 @@ parser.add_argument("-p", "--pseudocnt", metavar="FP", type=float, default=0.0, 
 parser.add_argument("-f", "--filter", metavar="FP", type=float, default=0.0, help="filter samples with sums less than this value")
 parser.add_argument("--dim-red", type=Dred, choices=list(Dred), default=Dred.UMAP, help="method for dimensionality reduction")
 parser.add_argument("--perplexity", type=float, default=50, help="perplexity parameter of t-SNE dimensionality reduction")
+parser.add_argument("--initial_dims", type=int, default=50, help="option for t-SNE: the number of dimensions that should be retained in the initial PCA step (default: 50)")
 parser.add_argument("--cluster", type=Cluster, choices=list(Cluster), help="clustering method. if set, clusters the data instead of doing dimensionality reduction on it.")
 parser.add_argument("--nclusters", default="1-12", type=str, help="comma-separated list of number ranges of clusters to use when --cluster is set, e.g. \"2,5-7,12\". [default = 1-12]")
 
