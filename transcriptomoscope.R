@@ -32,8 +32,8 @@ option_list = list(
               help="put each plot on an individual page", action="store_true"),
   make_option(c("", "--points"), type="logical", default=FALSE,
               help="plot points for the spots", action="store_true"),
-  make_option(c("", "--outline"), type="logical", default=FALSE,
-              help="draw the outline", action="store_true"),
+  make_option(c("", "--nooutline"), type="logical", default=FALSE,
+              help="do not draw the outline", action="store_true"),
   make_option(c("-H", "--hull"), type="numeric", default=0.25,
               help="distance to additional points to enlarge hull [default = 0.25]",
               metavar="N"),
@@ -309,7 +309,7 @@ make.plot = function(path, col) {
     }
     plot(tiles[[path]], fillcol = cols, showpoints = FALSE, border = ifelse(draw.border, TRUE, NA), clipp = cp[[path]], add = TRUE)
   }
-  if (opt$options$outline) {
+  if (!opt$options$nooutline) {
     pts = cbind(cp[[path]]$x, cp[[path]]$y)
     lines(rbind(pts, pts[1,]), col='black')
   }
