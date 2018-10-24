@@ -8,14 +8,14 @@ library("RColorBrewer", quietly=TRUE)
 
 # TODO write out a PDF with a color gradient scale bar
 
-ARRAY.COLS = 31
-ARRAY.ROWS = 33
+ARRAY.COLS <- 31
+ARRAY.ROWS <- 33
 
-add.grid = FALSE
+add.grid <- FALSE
 
-use.convex.hull = FALSE
+use.convex.hull <- FALSE
 
-option_list = list(
+option_list <- list(
   make_option(c("-1", "--one"), type="logical", default=FALSE, action="store_true",
               help="create one plot by interpreting three columns as red, green, and blue values. use this to plot dimensionality reduction results"),
   make_option(c("-O", "--order"), type="logical", default=TRUE, action="store_false",
@@ -70,59 +70,59 @@ option_list = list(
               action="store_true")
 );
 
-opt_parser = OptionParser(option_list = option_list);
-opt = parse_args(opt_parser, positional_arguments = c(1, Inf));
+opt_parser <- OptionParser(option_list = option_list);
+opt <- parse_args(opt_parser, positional_arguments = c(1, Inf));
 
 #-------------------------------------------------------------------------------
 
-one.pic.mode = opt$options$one
-plot.order.col = opt$options$order
-ncols = opt$options$columns
-split.plots = opt$options$split
-black.bg = opt$options$blackbg
-transpose = opt$options$transpose
-pal.choice = opt$options$pal
-outpath = opt$options$out
-indiv.scale = opt$options$indiv
-bwinv = opt$options$invert
-sdims = opt$options$selectdims
-draw.border = opt$options$border
-convhull.distance = opt$options$convhull
-relative.frequency = !opt$options$abs & !one.pic.mode
-margin.offset = opt$options$margin
-ARRAY.COLS = opt$options$array_cols
-ARRAY.ROWS = opt$options$array_rows
-restrict.to.frame = TRUE # make optional
-noisy = TRUE
-noisy = FALSE
+one.pic.mode <- opt$options$one
+plot.order.col <- opt$options$order
+ncols <- opt$options$columns
+split.plots <- opt$options$split
+black.bg <- opt$options$blackbg
+transpose <- opt$options$transpose
+pal.choice <- opt$options$pal
+outpath <- opt$options$out
+indiv.scale <- opt$options$indiv
+bwinv <- opt$options$invert
+sdims <- opt$options$selectdims
+draw.border <- opt$options$border
+convhull.distance <- opt$options$convhull
+relative.frequency <- !opt$options$abs & !one.pic.mode
+margin.offset <- opt$options$margin
+ARRAY.COLS <- opt$options$array_cols
+ARRAY.ROWS <- opt$options$array_rows
+restrict.to.frame <- TRUE # make optional
+noisy <- TRUE
+noisy <- FALSE
 
 palettes <- list(
-  discrete = brewer.pal(12, "Paired"),
-  green.to.blue = colorRamp(brewer.pal(9,"GnBu")),
-  the.cols = colorRamp(c(rgb(255,255,217, maxColorValue=255),
+  discrete <- brewer.pal(12, "Paired"),
+  green.to.blue <- colorRamp(brewer.pal(9,"GnBu")),
+  the.cols <- colorRamp(c(rgb(255,255,217, maxColorValue=255),
     rgb(65,182,196, maxColorValue=255),
     rgb(8, 29, 88, maxColorValue=255)),
     space="Lab"),
-  spectral = colorRamp(brewer.pal(9,"Spectral")),
-  black.to.red = colorRamp(c(rgb(0,0,0, maxColorValue=255),
+  spectral <- colorRamp(brewer.pal(9,"Spectral")),
+  black.to.red <- colorRamp(c(rgb(0,0,0, maxColorValue=255),
       rgb(255, 0, 0, maxColorValue=255)),
     space="Lab"),
-  black.to.green = colorRamp(c(rgb(0,0,0, maxColorValue=255),
+  black.to.green <- colorRamp(c(rgb(0,0,0, maxColorValue=255),
       rgb(0, 255, 0, maxColorValue=255)),
     space="Lab"),
-  black.to.blue = colorRamp(c(rgb(0,0,0, maxColorValue=255),
+  black.to.blue <- colorRamp(c(rgb(0,0,0, maxColorValue=255),
       rgb(0, 0, 255, maxColorValue=255)),
     space="Lab"),
-  offwhite.to.red = colorRamp(c(rgb(220,220,220, maxColorValue=255),
+  offwhite.to.red <- colorRamp(c(rgb(220,220,220, maxColorValue=255),
       rgb(255, 0, 0, maxColorValue=255)),
     space="Lab"),
-  offwhite.to.green = colorRamp(c(rgb(220,220,220, maxColorValue=255),
+  offwhite.to.green <- colorRamp(c(rgb(220,220,220, maxColorValue=255),
       rgb(0, 255, 0, maxColorValue=255)),
     space="Lab"),
-  offwhite.to.blue = colorRamp(c(rgb(220,220,220, maxColorValue=255),
+  offwhite.to.blue <- colorRamp(c(rgb(220,220,220, maxColorValue=255),
       rgb(0, 0, 255, maxColorValue=255)),
     space="Lab"),
-  offwhite.to.black = colorRamp(c(rgb(220,220,220, maxColorValue=255),
+  offwhite.to.black <- colorRamp(c(rgb(220,220,220, maxColorValue=255),
       rgb(0, 0, 0, maxColorValue=255)),
     space="Lab")
 )
@@ -134,7 +134,7 @@ if (!is.null(sdims)) {
   stopifnot(length(ind) == 3)
 }
 
-paths = opt$args
+paths <- opt$args
 
 st.load.matrix <- function(path)
   as.matrix(read.table(file = path, sep="\t", header = TRUE, row.names = 1,
@@ -147,7 +147,7 @@ parse.coords <- function(n, delimiter=coord.delimiter, cols=1:2)
 d <- list()
 coords <- list()
 for(path in paths) {
-  d[[path]] = st.load.matrix(path)
+  d[[path]] <- st.load.matrix(path)
   if (transpose) {
     d[[path]] <- t(d[[path]])
   }
@@ -158,45 +158,45 @@ for(path in paths) {
     # TODO make configurable
     # only use non-empty spots
     d[[path]] <- d[[path]][rowSums(d[[path]])>0, ]
-    d[[path]] = prop.table(d[[path]], 1)
+    d[[path]] <- prop.table(d[[path]], 1)
   }
   coords[[path]] <- parse.coords(rownames(d[[path]]))
 }
 
-ncolumns = ncol(d[[1]])
+ncolumns <- ncol(d[[1]])
 # Set dimensions of plot
 if(one.pic.mode | plot.order.col) {
-  n = length(d)
+  n <- length(d)
 } else {
-  n = ncolumns
+  n <- ncolumns
 }
 
 if (!is.null(ncols)) {
-  nc = ncols
-  nr = ceiling(n/ncols)
+  nc <- ncols
+  nr <- ceiling(n/ncols)
 } else {
-  nc = ceiling(sqrt(n))
-  nr = ceiling(n/nc)
+  nc <- ceiling(sqrt(n))
+  nr <- ceiling(n/nc)
 }
 
 if (split.plots) {
-  nc = 1
-  nr = 1
+  nc <- 1
+  nr <- 1
 }
 
-min_na.rm = function(x) min(x, na.rm=T)
-max_na.rm = function(x) max(x, na.rm=T)
-mins = apply(sapply(d, function(x) apply(x, 2, min_na.rm)), 1, min_na.rm)
-# mins = 0
-maxs = apply(sapply(d, function(x) apply(x, 2, max_na.rm)), 1, max_na.rm)
-ranges = maxs - mins
+min_na.rm <- function(x) min(x, na.rm=T)
+max_na.rm <- function(x) max(x, na.rm=T)
+mins <- apply(sapply(d, function(x) apply(x, 2, min_na.rm)), 1, min_na.rm)
+# mins <- 0
+maxs <- apply(sapply(d, function(x) apply(x, 2, max_na.rm)), 1, max_na.rm)
+ranges <- maxs - mins
 
 enlarged.convex.hull <- function(x, y, a) {
   X <- c(x, x + a, x, x - a)
   Y <- c(y + a, y, y - a, y)
-  pts = cbind(X,Y)
-  pts = pts + rnorm(length(pts), 0, 0.05)
-  pts = pts[!duplicated(pts),]
+  pts <- cbind(X,Y)
+  pts <- pts + rnorm(length(pts), 0, 0.05)
+  pts <- pts[!duplicated(pts),]
   if (use.convex.hull) {
     cpi <- chull(X, Y)
     list(x = X[cpi], y = Y[cpi])
@@ -211,14 +211,14 @@ enlarged.convex.hull <- function(x, y, a) {
     }
 
     if (restrict.to.frame) {
-      alpha = 0.5
+      alpha <- 0.5
       corner.size <- 1 + 5
 
-      frame.x = c(1 + alpha, 1 + ARRAY.COLS - alpha, 1 + ARRAY.COLS - alpha, 1 + alpha)
-      frame.y = c(1 + alpha, 1 + alpha, 1 + ARRAY.ROWS - alpha, 1 + ARRAY.ROWS - alpha)
+      frame.x <- c(1 + alpha, 1 + ARRAY.COLS - alpha, 1 + ARRAY.COLS - alpha, 1 + alpha)
+      frame.y <- c(1 + alpha, 1 + alpha, 1 + ARRAY.ROWS - alpha, 1 + ARRAY.ROWS - alpha)
 
-      corner.x = c(1 + alpha, corner.size - alpha, corner.size - alpha, 1 + alpha)
-      corner.y = c(1 + alpha, 1 + alpha, corner.size - alpha, corner.size - alpha)
+      corner.x <- c(1 + alpha, corner.size - alpha, corner.size - alpha, 1 + alpha)
+      corner.y <- c(1 + alpha, 1 + alpha, corner.size - alpha, corner.size - alpha)
 
       unitsq <- Polygon(matrix(c(frame.x, frame.y), ncol=2, byrow=FALSE))
       corner <- Polygon(matrix(c(corner.x, corner.y), ncol=2, byrow=FALSE))
@@ -322,31 +322,31 @@ if(one.pic.mode) {
   }
 }
 
-make.lab.from.cube = function(x) {
+make.lab.from.cube <- function(x) {
   r <- x[,1]
   g <- x[,2]
   b <- x[,3]
   # r <- x[,1]
   # g <- x[,2]
   # b <- x[,3]
-  r = as.vector(r)
-  g = as.vector(g)
-  b = as.vector(b)
+  r <- as.vector(r)
+  g <- as.vector(g)
+  b <- as.vector(b)
   if (noisy)
     print(summary(cbind(r,g,b)))
-  lab = cbind(r*100, g * 200 - 100, 200 * b - 100)
+  lab <- cbind(r*100, g * 200 - 100, 200 * b - 100)
   rgb(convertColor(lab, from="Lab", to="sRGB"))
   # return(lab)
 }
 
-plot.asp = (ARRAY.ROWS + 2 * margin.offset) / (ARRAY.COLS + 2 * margin.offset)
+plot.asp <- (ARRAY.ROWS + 2 * margin.offset) / (ARRAY.COLS + 2 * margin.offset)
 
 pdf(file = outpath, width = 6*nc, height = 6*nr*plot.asp)
 par(mar = c(0, 0, 0, 0))
 if(black.bg)
   par(bg="black")
 
-make.plot = function(path, col) {
+make.plot <- function(path, col) {
   if (noisy)
     print(c(path, col))
   x <- coords[[path]][, 1]
@@ -384,8 +384,8 @@ make.plot = function(path, col) {
       if (bwinv)
         v <- 1 - v
       if (indiv.scale) {
-        # v = v - min(v)
-        v = v / max(v)
+        # v <- v - min(v)
+        v <- v / max(v)
       }
       if (noisy) {
         print("str(v)")
@@ -402,7 +402,7 @@ make.plot = function(path, col) {
     plot(tiles[[path]], fillcol = cols, showpoints = FALSE, border = ifelse(draw.border, TRUE, NA), clipp = cp[[path]], add = TRUE)
   }
   if (!opt$options$nooutline) {
-    pts = cbind(cp[[path]]$x, cp[[path]]$y)
+    pts <- cbind(cp[[path]]$x, cp[[path]]$y)
     lines(rbind(pts, pts[1,]), col='black')
   }
   if (opt$options$points)
