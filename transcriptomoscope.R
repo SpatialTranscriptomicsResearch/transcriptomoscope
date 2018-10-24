@@ -23,6 +23,10 @@ option_list = list(
   make_option(c("-c", "--columns"), type="numeric", default=NULL,
               help="number of columns in grid plots [default = ceiling(sqrt(n)), where n is the number of samples]",
               metavar="N"),
+  make_option(c("-C", "--array_cols"), type="numeric", default=ARRAY.COLS,
+              help=paste0("number of columns of the array [default = ", ARRAY.COLS, "]"), metavar="N"),
+  make_option(c("-R", "--array_rows"), type="numeric", default=ARRAY.ROWS,
+              help=paste0("number of rows of the array [default = ", ARRAY.ROWS, "]"), metavar="N"),
   make_option(c("-m", "--margin"), type="numeric", default=0,
               help="margin size. use 0 to include the frame, and use -1 to exclude the frame [default = 0]",
               metavar="N"),
@@ -86,6 +90,8 @@ draw.border = opt$options$border
 convhull.distance = opt$options$convhull
 relative.frequency = !opt$options$abs & !one.pic.mode
 margin.offset = opt$options$margin
+ARRAY.COLS = opt$options$array_cols
+ARRAY.ROWS = opt$options$array_rows
 restrict.to.frame = TRUE # make optional
 noisy = TRUE
 noisy = FALSE
