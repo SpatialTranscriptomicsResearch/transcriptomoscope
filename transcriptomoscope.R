@@ -137,10 +137,11 @@ if (!is.null(sdims)) {
 paths = opt$args
 
 st.load.matrix <- function(path)
-  as.matrix(read.table(file = path, sep="\t", header = T, row.names = 1))
+  as.matrix(read.table(file = path, sep="\t", header = TRUE, row.names = 1,
+                       check.names=FALSE))
 
-parse.coords <- function(n, delimiter=coord.delimiter)
-  apply(do.call(rbind, strsplit(n, split = "x")), 2, as.numeric)
+parse.coords <- function(n, delimiter=coord.delimiter, cols=1:2)
+  apply(do.call(rbind, strsplit(n, split = "x")), 2, as.numeric)[,cols]
 
 # Load files
 d <- list()
@@ -153,9 +154,13 @@ for(path in paths) {
   if (!is.null(sdims)) {
     d[[path]] <- d[[path]][, ind]
   }
-  coords[[path]] <- parse.coords(rownames(d[[path]]))
-  if (relative.frequency && pal.choice != "discrete")
+  if (relative.frequency && pal.choice != "discrete") {
+    # TODO make configurable
+    # only use non-empty spots
+    d[[path]] <- d[[path]][rowSums(d[[path]])>0, ]
     d[[path]] = prop.table(d[[path]], 1)
+  }
+  coords[[path]] <- parse.coords(rownames(d[[path]]))
 }
 
 ncolumns = ncol(d[[1]])
