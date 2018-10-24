@@ -155,8 +155,11 @@ if (split.plots) {
   nr = 1
 }
 
-mins = apply(sapply(d, function(x) apply(x, 2, min)), 1, min)
-maxs = apply(sapply(d, function(x) apply(x, 2, max)), 1, max)
+min_na.rm = function(x) min(x, na.rm=T)
+max_na.rm = function(x) max(x, na.rm=T)
+mins = apply(sapply(d, function(x) apply(x, 2, min_na.rm)), 1, min_na.rm)
+# mins = 0
+maxs = apply(sapply(d, function(x) apply(x, 2, max_na.rm)), 1, max_na.rm)
 ranges = maxs - mins
 
 enlarged.convex.hull <- function(x, y, a) {
