@@ -87,6 +87,8 @@ convhull.distance = opt$options$convhull
 relative.frequency = !opt$options$abs & !one.pic.mode
 margin.offset = opt$options$margin
 restrict.to.frame = TRUE # make optional
+noisy = TRUE
+noisy = FALSE
 
 palettes <- list(
   discrete = brewer.pal(12, "Paired"),
@@ -170,6 +172,11 @@ enlarged.convex.hull <- function(x, y, a) {
     hull <- ahull(pts, alpha=opt$options$ahull)
     indx=hull$arcs[,"end1"]
     the.hull <- list(x = X[indx], y=Y[indx])
+    if (noisy) {
+      print("the.hull")
+      print(str(the.hull))
+      print(the.hull)
+    }
 
     if (restrict.to.frame) {
       alpha = 0.5
@@ -185,12 +192,36 @@ enlarged.convex.hull <- function(x, y, a) {
       corner <- Polygon(matrix(c(corner.x, corner.y), ncol=2, byrow=FALSE))
       thehull <- Polygon(matrix(c(the.hull$x, the.hull$y), ncol=2, byrow=FALSE))
 
+      if (noisy) {
+        print("unitsq")
+        print(unitsq)
+        print("corner")
+        print(corner)
+        print("thehull")
+        print(thehull)
+      }
+
       inside <- gDifference(SpatialPolygons(list(Polygons(list(unitsq), "unitsq"))),
                             SpatialPolygons(list(Polygons(list(corner), "corner"))))
+
+      if (noisy) {
+        print("inside")
+        print(str(inside))
+      }
+
       inters <- gIntersection(SpatialPolygons(list(Polygons(list(thehull), "hull"))),
                               inside)
 
       res <- as.data.frame(inters@polygons[[1]]@Polygons[[1]]@coords)
+
+      if (noisy) {
+        # print("inside")
+        # print(str(inside))
+        print("inters")
+        print(str(inters))
+        print("str(res)")
+        print(str(res))
+      }
 
       res[-nrow(res),]
 
@@ -214,8 +245,20 @@ for(path in paths) {
   vtess <- deldir(x, y)
   tiles[[path]] <- tile.list(vtess)
   z[[path]] <- d[[path]]
+  if (noisy) {
+    print("summary(z[[path]])")
+    print(summary(z[[path]]))
+    print("summary(ranges)")
+    print(summary(ranges))
+    print("summary(mins)")
+    print(summary(mins))
+  }
   if (pal.choice != "discrete")
     z[[path]] <- t((t(z[[path]]) - mins) / ranges)
+  if (noisy) {
+    print("summary(z[[path]])")
+    print(summary(z[[path]]))
+  }
 
   cp[[path]] <- enlarged.convex.hull(x, y, convhull.distance)
 }
@@ -257,7 +300,8 @@ make.lab.from.cube = function(x) {
   r = as.vector(r)
   g = as.vector(g)
   b = as.vector(b)
-  print(summary(cbind(r,g,b)))
+  if (noisy)
+    print(summary(cbind(r,g,b)))
   lab = cbind(r*100, g * 200 - 100, 200 * b - 100)
   rgb(convertColor(lab, from="Lab", to="sRGB"))
   # return(lab)
@@ -271,7 +315,8 @@ if(black.bg)
   par(bg="black")
 
 make.plot = function(path, col) {
-  print(c(path, col))
+  if (noisy)
+    print(c(path, col))
   x <- coords[[path]][, 1]
   y <- coords[[path]][, 2]
   plot(x, y, type = 'n', bty = 'none', axes = FALSE,
@@ -287,13 +332,18 @@ make.plot = function(path, col) {
   if(one.pic.mode) {
     while (ncol(z[[path]]) < 3)
       z[[path]] <- cbind(z[[path]], 0)
-    print(head(z[[path]]))
+    if (noisy)
+      print(head(z[[path]]))
     cols <- rgb(z[[path]][,1:3])
     if (opt$options$lab)
       cols <- make.lab.from.cube(z[[path]])
     plot(tiles[[path]], fillcol = cols, showpoints = FALSE,
          border = ifelse(draw.border, TRUE, NA), clipp = cp[[path]], add = TRUE)
   } else {
+    if (noisy) {
+      print("summary(z[[path]])")
+      print(summary(z[[path]]))
+    }
     v <- z[[path]][, col]
     if (pal.choice == "discrete") {
       stopifnot(all(v == as.integer(v)), min(v) >= 1, max(v) <= length(palette))
@@ -304,6 +354,16 @@ make.plot = function(path, col) {
       if (indiv.scale) {
         # v = v - min(v)
         v = v / max(v)
+      }
+      if (noisy) {
+        print("str(v)")
+        print(str(v))
+        print("summary(v)")
+        print(summary(v))
+        print("str(palette(v))")
+        print(str(palette(v)))
+        print("summary(palette(v))")
+        print(summary(palette(v)))
       }
       cols <- rgb(palette(v), maxColorValue=255)
     }
