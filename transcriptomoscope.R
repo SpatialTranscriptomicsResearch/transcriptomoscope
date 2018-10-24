@@ -1,10 +1,10 @@
 #!/usr/bin/env Rscript
-library("deldir")
-library("optparse")
-library("sp")
-library("rgeos")
-library("alphahull")
-library("RColorBrewer")
+library("deldir", quietly=TRUE)
+library("optparse", quietly=TRUE)
+library("sp", quietly=TRUE)
+library("rgeos", quietly=TRUE)
+library("alphahull", quietly=TRUE)
+library("RColorBrewer", quietly=TRUE)
 
 # TODO write out a PDF with a color gradient scale bar
 
