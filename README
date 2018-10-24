@@ -1,0 +1,16 @@
+run-umap.py
+===========
+The python code to perform dimensionality reduction has the following package dependencies:
+* numpy
+* pandas
+* umap
+* sklearn
+
+transcriptomoscope.R
+====================
+The R code to plot spatial transcriptomics data using Voronoi tesselation has these dependencies:
+* deldir
+* sp
+* rgeos
+* alphahull
+* RColorBrewer
