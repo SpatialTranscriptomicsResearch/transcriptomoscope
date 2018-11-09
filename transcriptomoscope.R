@@ -43,6 +43,8 @@ option_list <- list(
               help=paste0("number of columns of the array [default = ", ARRAY.COLS, "]"), metavar="N"),
   make_option(c("-R", "--array_rows"), type="numeric", default=ARRAY.ROWS,
               help=paste0("number of rows of the array [default = ", ARRAY.ROWS, "]"), metavar="N"),
+  make_option(c("", "--limit"), type="numeric", default=0,
+              help=paste0("only plot the first N columns; use 0 to plot all [default = 0]"), metavar="N"),
   make_option(c("-m", "--margin"), type="numeric", default=0,
               help="margin size. use 0 to include the frame, and use -1 to exclude the frame [default = 0]",
               metavar="N"),
@@ -108,6 +110,7 @@ relative.frequency <- !opt$options$abs & !one.pic.mode
 margin.offset <- opt$options$margin
 ARRAY.COLS <- opt$options$array_cols
 ARRAY.ROWS <- opt$options$array_rows
+limit.factors <- opt$options$limit
 restrict.to.frame <- TRUE # make optional
 noisy <- TRUE
 noisy <- FALSE
@@ -176,6 +179,8 @@ for(path in paths) {
     d[[path]] <- d[[path]][rowSums(d[[path]])>0, ]
     d[[path]] <- prop.table(d[[path]], 1)
   }
+  if (limit.factors > 0)
+    d[[path]] <- d[[path]][,1:limit.factors]
   coords[[path]] <- parse.coords(rownames(d[[path]]))
 }
 
