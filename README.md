@@ -8,7 +8,7 @@ The python code to perform dimensionality reduction has the following package de
 
 transcriptomoscope.R
 ====================
-The R code to plot spatial transcriptomics data using Voronoi tesselation has these dependencies:
+The R code to plot spatial transcriptomics data using Voronoi tessellation has these dependencies:
 * deldir
 * sp
 * rgeos
